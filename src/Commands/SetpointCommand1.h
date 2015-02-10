@@ -23,6 +23,9 @@
  */
 class SetpointCommand1: public Command {
 public:
+	static double points[];
+	static int counter;
+	static bool first,joystick;
 	SetpointCommand1();
 	virtual void Initialize();
 	virtual void Execute();
