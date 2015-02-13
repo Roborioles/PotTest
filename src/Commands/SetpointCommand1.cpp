@@ -36,29 +36,34 @@ void SetpointCommand1::Initialize() {
 
 // Called repeatedly when this Command is scheduled to run
 void SetpointCommand1::Execute() {
-	//printf("HIE");
-	if(Robot::oi->getJoystick1()->GetRawButton(3)&&counter<9&&!first){
-		counter++;
-		first=true;
-		joystick=false;
-	}else if(Robot::oi->getJoystick1()->GetRawButton(2)&&counter>0&&!first){
-		counter--;
-		first=true;
-		joystick=false;
+	if(Robot::oi->getJoystick1()->GetY()>.05||Robot::oi->getJoystick1()->GetY()<-.05){
+	joystick=true;
+}
+else{
+Robot::pIDSubsystem1->Disable();
+}
+	if(joystick){
+		Robot::pIDSubsystem1->Disable();
+	}else{
+		Robot::pIDSubsystem1->Enable();
 	}
-	if(!Robot::oi->getJoystick1()->GetRawButton(3)&&!Robot::oi->getJoystick1()->GetRawButton(2)){
-		first=false;
-	}
-	if(!RobotMap::pIDSubsystem1LimitSwitch1->Get()||
-			!RobotMap::pIDSubsystem1LimitSwitch2->Get()||
-			Robot::oi->getJoystick1()->GetY()<-.05||
-			Robot::oi->getJoystick1()->GetY()>.05){
-		Robot::pIDSubsystem1->SetSetpoint(RobotMap::pIDSubsystem1AnalogPotentiometer1->Get()+Robot::oi->getJoystick1()->GetY());
-		if(Robot::oi->getJoystick1()->GetY()<-.05||Robot::oi->getJoystick1()->GetY()>.05)
-			joystick=true;
-	}else if(!joystick)
-		Robot::pIDSubsystem1->SetSetpoint(points[counter]);
-	printf("%f\n%f\n",Robot::pIDSubsystem1->GetSetpoint(),points[counter]);
+	printf("%.2f\n",Robot::pIDSubsystem1->GetSetpoint());
+	if(Robot::pIDSubsystem1->limitSwitch1->Get()&&Robot::pIDSubsystem1->limitSwitch2->Get()){
+		if(Robot::oi->getJoystick1()->GetRawButton(6)){
+			if(first){
+				Robot::pIDSubsystem1->SetSetpointRelative(1.0);
+				joystick=false;
+				first=false;
+			}
+		}else if(Robot::oi->getJoystick1()->GetRawButton(7)){
+			if(first){
+				Robot::pIDSubsystem1->SetSetpointRelative(-1.0);
+				joystick=false;
+				first=false;
+			}
+		}else{
+			first=true;
+		}
 
 }
 
